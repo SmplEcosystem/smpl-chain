@@ -1,6 +1,6 @@
 <template>
-	<div v-if="initialized">
-		<SpWallet ref="wallet" v-on:dropdown-opened="$refs.menu.closeDropdown()" />
+	<div v-if='initialized'>
+		<SpWallet ref='wallet' v-on:dropdown-opened='$refs.menu.closeDropdown()' />
 		<SpLayout>
 			<template v-slot:sidebar>
 				<Sidebar />
@@ -38,7 +38,18 @@ export default {
 		}
 	},
 	async created() {
-		await this.$store.dispatch('common/env/init')
+		await this.$store.dispatch(
+			'common/env/init',
+			{
+				apiNode: 'http://localhost:1317',
+				rpcNode: 'http://localhost:26657',
+				wsNode: 'ws://localhost:26657/websocket',
+				chainId: 'smpl-chain',
+				addrPrefix: 'smpl',
+				sdkVersion: 'Stargate',
+				getTXApi: 'http://localhost:26657/tx?hash=0x'
+			}
+		)
 		this.initialized = true
 	},
 	errorCaptured(err) {
