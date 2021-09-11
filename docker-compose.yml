@@ -1,0 +1,8 @@
+version: '3'
+volumes:
+  smpl-chain-data:
+services:
+  dev-node:
+    image: smpl-chain
+    volumes:
+      - ./smpl-chain-data:/home/appuser/.smpl-chain/data
