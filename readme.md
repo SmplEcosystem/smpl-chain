@@ -47,6 +47,12 @@ curl https://get.starport.network/Smpl-Finance/smpl-chain@latest! | sudo bash
 ```
 `Smpl-Finance/smpl-chain` should match the `username` and `repo_name` of the Github repository to which the source code was pushed. Learn more about [the install process](https://github.com/allinbits/starport-installer).
 
+### Docker-compose
+
+docker-compose expects a "smpl-chain-data" directory to exist, it will create it if it does not. 
+It needs the owner to be set to uid 101. It will save node data there, this will allow you turn a local node with some
+persistence, so you don't need to get caught up all the way every time you start
+
 ## Learn more
 
 - [Starport](https://github.com/tendermint/starport)
