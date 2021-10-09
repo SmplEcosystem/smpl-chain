@@ -8,5 +8,4 @@ option go_package = "github.com/Smpl-Finance/smpl-chain/x/smplchain/types";
 // GenesisState defines the smplchain module's genesis state.
 message GenesisState {
     // this line is used by starport scaffolding # genesis/proto/state
-    // this line is used by starport scaffolding # ibc/genesis/proto
 }
