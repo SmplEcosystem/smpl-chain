@@ -3,6 +3,7 @@ package keeper
 import (
 	"testing"
 
+	"github.com/Smpl-Finance/smpl-chain/x/smplchain/keeper"
 	"github.com/Smpl-Finance/smpl-chain/x/smplchain/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
@@ -15,7 +16,7 @@ import (
 	tmdb "github.com/tendermint/tm-db"
 )
 
-func setupKeeper(t testing.TB) (*Keeper, sdk.Context) {
+func SmplchainKeeper(t testing.TB) (*keeper.Keeper, sdk.Context) {
 	storeKey := sdk.NewKVStoreKey(types.StoreKey)
 	memStoreKey := storetypes.NewMemoryStoreKey(types.MemStoreKey)
 
@@ -26,12 +27,12 @@ func setupKeeper(t testing.TB) (*Keeper, sdk.Context) {
 	require.NoError(t, stateStore.LoadLatestVersion())
 
 	registry := codectypes.NewInterfaceRegistry()
-	keeper := NewKeeper(
+	k := keeper.NewKeeper(
 		codec.NewProtoCodec(registry),
 		storeKey,
 		memStoreKey,
 	)
 
 	ctx := sdk.NewContext(stateStore, tmproto.Header{}, false, log.NewNopLogger())
-	return keeper, ctx
+	return k, ctx
 }
