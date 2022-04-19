@@ -1,16 +1,36 @@
 accounts:
+  - name: validator1
+    coins: [ "200000000smpl" ]
+    mnemonic: "blossom nominee burst use banana base kite strong lawn autumn tree enact vapor domain media you marble bomb theory heart visit give cereal panic"
   - name: alice
-    coins: ["20000token", "200000000stake"]
+    coins: [ "200000smpl" ]
+    mnemonic: "primary off palace rhythm attend human sample exact side domain fantasy attend tent end shadow gallery okay gallery clog announce cry senior citizen spot"
   - name: bob
-    coins: ["10000token", "100000000stake"]
+    coins: ["10000smpl"]
+    mnemonic: "lion fade special man proof bus mansion turn consider earth castle comfort echo axis body pen vehicle glare pig chest member fantasy brush kiwi"
 validator:
-  name: alice
-  staked: "100000000stake"
+  name: validator1
+  staked: "10000000smpl"
 client:
   openapi:
     path: "docs/static/openapi.yml"
   vuex:
     path: "vue/src/store"
+genesis:
+  chain_id: "cosmos:smpl-chain"
+  app_state:
+    staking:
+      params:
+        bond_denom: "smpl"
+    crisis:
+      constant_fee:
+        denom: smpl
+    mint:
+      params:
+        mint_denom: smpl
 faucet:
-  name: bob
-  coins: ["5token", "100000stake"]
+  name: alice
+  coins:
+    - 10000smpl
+  coins_max:
+    - 20000smpl
