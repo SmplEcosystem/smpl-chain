@@ -1,0 +1,5 @@
+version: "3"
+services:
+  smpl-chain:
+    build: .
+    image: registry.digitalocean.com/smplfinance-image-registry/smpl-chain:2.0.0
