@@ -13,12 +13,9 @@ COPY ./ ./
 RUN starport chain build -o /go/bin
 RUN starport chain init
 
-RUN ls -l /go/bin
-
 FROM golang:1.18-bullseye
 
 COPY --from=build /go/bin/* /go/bin/
 COPY --from=build /root/.smpl-chain /root/.smpl-chain
-
 
 CMD [ "/go/bin/smpl-chaind", "start" ]

@@ -11,11 +11,6 @@ accounts:
 validator:
   name: validator1
   staked: "10000000smpl"
-client:
-  openapi:
-    path: "docs/static/openapi.yml"
-  vuex:
-    path: "vue/src/store"
 genesis:
   chain_id: "cosmos:smpl-chain"
   app_state:
@@ -31,6 +26,16 @@ genesis:
 faucet:
   name: alice
   coins:
-    - 10000smpl
+    - 1000smpl
   coins_max:
     - 20000smpl
+init:
+  app:
+    minimum-gas-prices: "0smpl"
+    grpc-web:
+      enable-unsafe-cors: false
+    api:
+      enabled-unsafe-cors: false
+  client:
+    keyring-backend: test
+    chain-id: "cosmos:smpl-chain"

@@ -1,5 +1,17 @@
 version: "3"
 services:
-  smpl-chain:
+  SmplChain:
     build: .
-    image: registry.digitalocean.com/smplfinance-image-registry/smpl-chain:2.0.0
+    image: registry.digitalocean.com/smplfinance-image-registry/smpl-chain:2.0.2
+
+  ReverseProxy:
+    build:
+      context: .
+      dockerfile: ReverseProxyDockerfile
+    image: registry.digitalocean.com/smplfinance-image-registry/smpl-chain-reverse-proxy:1.0.0
+    depends_on:
+      - SmplChain
+    ports:
+      - "1318:1318"
+      - "26658:26658"
+
