@@ -91,6 +91,10 @@ import (
 	smplchainmodule "github.com/Smpl-Finance/smpl-chain/x/smplchain"
 	smplchainmodulekeeper "github.com/Smpl-Finance/smpl-chain/x/smplchain/keeper"
 	smplchainmoduletypes "github.com/Smpl-Finance/smpl-chain/x/smplchain/types"
+
+	smplusdmodule "github.com/Smpl-Finance/smpl-chain/x/smplusd"
+	smplusdmodulekeeper "github.com/Smpl-Finance/smpl-chain/x/smplusd/keeper"
+	smplusdmoduletypes "github.com/Smpl-Finance/smpl-chain/x/smplusd/types"
 	// this line is used by starport scaffolding # stargate/app/moduleImport
 )
 
@@ -142,6 +146,8 @@ var (
 		transfer.AppModuleBasic{},
 		vesting.AppModuleBasic{},
 		smplchainmodule.AppModuleBasic{},
+		smplusdmodule.AppModuleBasic{},
+
 		// this line is used by starport scaffolding # stargate/app/moduleBasic
 	)
 
@@ -211,6 +217,8 @@ type App struct {
 	ScopedTransferKeeper capabilitykeeper.ScopedKeeper
 
 	SmplchainKeeper smplchainmodulekeeper.Keeper
+	SmplUSDKeeper   smplusdmodulekeeper.Keeper
+
 	// this line is used by starport scaffolding # stargate/app/keeperDeclaration
 
 	// the module manager
@@ -348,6 +356,14 @@ func New(
 		keys[smplchainmoduletypes.StoreKey],
 		keys[smplchainmoduletypes.MemStoreKey],
 	)
+
+	app.SmplUSDKeeper = *smplusdmodulekeeper.NewKeeper(
+		appCodec,
+		keys[smplusdmoduletypes.StoreKey],
+		keys[smplusdmoduletypes.MemStoreKey],
+	)
+	smplusdModule := smplchainmodule.NewAppModule(appCodec, app.SmplUSDKeeper)
+
 	smplchainModule := smplchainmodule.NewAppModule(appCodec, app.SmplchainKeeper)
 
 	// this line is used by starport scaffolding # stargate/app/keeperDefinition
@@ -389,6 +405,7 @@ func New(
 		params.NewAppModule(app.ParamsKeeper),
 		transferModule,
 		smplchainModule,
+		smplusdModule,
 		// this line is used by starport scaffolding # stargate/app/appModule
 	)
 
@@ -424,6 +441,7 @@ func New(
 		evidencetypes.ModuleName,
 		ibctransfertypes.ModuleName,
 		smplchainmoduletypes.ModuleName,
+		smplusdModule.ModuleName,
 		// this line is used by starport scaffolding # stargate/app/initGenesis
 	)
 
@@ -612,6 +630,8 @@ func initParamsKeeper(appCodec codec.BinaryCodec, legacyAmino *codec.LegacyAmino
 	paramsKeeper.Subspace(ibctransfertypes.ModuleName)
 	paramsKeeper.Subspace(ibchost.ModuleName)
 	paramsKeeper.Subspace(smplchainmoduletypes.ModuleName)
+	paramsKeeper.Subspace(smplusdmoduletypes.ModuleName)
+
 	// this line is used by starport scaffolding # stargate/app/paramSubspace
 
 	return paramsKeeper

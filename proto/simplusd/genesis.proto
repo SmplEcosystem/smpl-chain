@@ -1,0 +1,14 @@
+syntax = "proto3";
+package smplfinance.smplchain.simplusd;
+
+import "gogoproto/gogo.proto";
+import "simplusd/params.proto";
+// this line is used by starport scaffolding # genesis/proto/import
+
+option go_package = "github.com/Smpl-Finance/smpl-chain/x/simplusd/types";
+
+// GenesisState defines the simplusd module's genesis state.
+message GenesisState {
+  Params params = 1 [(gogoproto.nullable) = false];
+  // this line is used by starport scaffolding # genesis/proto/state
+}
