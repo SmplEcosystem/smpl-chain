@@ -1,0 +1,12 @@
+syntax = "proto3";
+package smplfinance.smplchain.simplusd;
+
+import "gogoproto/gogo.proto";
+
+option go_package = "github.com/Smpl-Finance/smpl-chain/x/simplusd/types";
+
+// Params defines the parameters for the module.
+message Params {
+  option (gogoproto.goproto_stringer) = false;
+  
+}

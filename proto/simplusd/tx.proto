@@ -1,0 +1,31 @@
+syntax = "proto3";
+package smplfinance.smplchain.simplusd;
+
+// this line is used by starport scaffolding # proto/tx/import
+
+option go_package = "github.com/Smpl-Finance/smpl-chain/x/simplusd/types";
+
+// Msg defines the Msg service.
+service Msg {
+      rpc Burnsusd(MsgBurnsusd) returns (MsgBurnsusdResponse);
+  rpc Mintsusd(MsgMintsusd) returns (MsgMintsusdResponse);
+// this line is used by starport scaffolding # proto/tx/rpc
+}
+
+message MsgBurnsusd {
+  string creator = 1;
+  string amount = 2;
+}
+
+message MsgBurnsusdResponse {
+}
+
+message MsgMintsusd {
+  string creator = 1;
+  string amount = 2;
+}
+
+message MsgMintsusdResponse {
+}
+
+// this line is used by starport scaffolding # proto/tx/message
