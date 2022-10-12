@@ -92,10 +92,10 @@ import (
 	smplchainmodule "github.com/Smpl-Finance/smpl-chain/x/smplchain"
 	smplchainmodulekeeper "github.com/Smpl-Finance/smpl-chain/x/smplchain/keeper"
 	smplchainmoduletypes "github.com/Smpl-Finance/smpl-chain/x/smplchain/types"
+	smplcoinsmodule "github.com/Smpl-Finance/smpl-chain/x/smplcoins"
+	smplcoinsmodulekeeper "github.com/Smpl-Finance/smpl-chain/x/smplcoins/keeper"
 
-	smplusdmodule "github.com/Smpl-Finance/smpl-chain/x/simplusd"
-	smplusdmodulekeeper "github.com/Smpl-Finance/smpl-chain/x/simplusd/keeper"
-	smplusdmoduletypes "github.com/Smpl-Finance/smpl-chain/x/simplusd/types"
+	smplcoinsmoduletypes "github.com/Smpl-Finance/smpl-chain/x/smplcoins/types"
 	// this line is used by starport scaffolding # stargate/app/moduleImport
 )
 
@@ -147,7 +147,7 @@ var (
 		transfer.AppModuleBasic{},
 		vesting.AppModuleBasic{},
 		smplchainmodule.AppModuleBasic{},
-		smplusdmodule.AppModuleBasic{},
+		smplcoinsmodule.AppModuleBasic{},
 
 		// this line is used by starport scaffolding # stargate/app/moduleBasic
 	)
@@ -158,7 +158,7 @@ var (
 		distrtypes.ModuleName:      nil,
 		minttypes.ModuleName:       {authtypes.Minter},
 
-		smplusdmoduletypes.ModuleName: {authtypes.Minter, authtypes.Burner},
+		smplcoinsmoduletypes.ModuleName: {authtypes.Minter, authtypes.Burner},
 
 		stakingtypes.BondedPoolName:    {authtypes.Burner, authtypes.Staking},
 		stakingtypes.NotBondedPoolName: {authtypes.Burner, authtypes.Staking},
@@ -214,7 +214,7 @@ type App struct {
 	UpgradeKeeper  upgradekeeper.Keeper
 	ParamsKeeper   paramskeeper.Keeper
 	IBCKeeper      *ibckeeper.Keeper // IBC Keeper must be a pointer in the app, so we can SetRouter on it correctly
-	EvidenceKeeper evidencekeeper.Keeper  m
+	EvidenceKeeper evidencekeeper.Keeper
 	TransferKeeper ibctransferkeeper.Keeper
 	FeeGrantKeeper feegrantkeeper.Keeper
 
@@ -223,7 +223,8 @@ type App struct {
 	ScopedTransferKeeper capabilitykeeper.ScopedKeeper
 
 	SmplchainKeeper smplchainmodulekeeper.Keeper
-	SmplUSDKeeper   smplusdmodulekeeper.Keeper
+
+	SmplCoinsKeeper smplcoinsmodulekeeper.Keeper
 
 	// this line is used by starport scaffolding # stargate/app/keeperDeclaration
 
@@ -365,15 +366,15 @@ func New(
 		keys[smplchainmoduletypes.MemStoreKey],
 	)
 
-	app.SmplUSDKeeper = *smplusdmodulekeeper.NewKeeper(
+	app.SmplCoinsKeeper = *smplcoinsmodulekeeper.NewKeeper(
 		appCodec,
-		keys[smplusdmoduletypes.StoreKey],
-		keys[smplusdmoduletypes.MemStoreKey],
-		app.GetSubspace(smplusdmoduletypes.ModuleName),
-		app.AccountKeeper,
+		keys[smplchainmoduletypes.StoreKey],
+		keys[smplchainmoduletypes.MemStoreKey],
+		app.GetSubspace(smplchainmoduletypes.ModuleName),
 		app.BankKeeper,
+		app.AccountKeeper,
 	)
-	smplusdModule := smplusdmodule.NewAppModule(appCodec, app.SmplUSDKeeper, app.AccountKeeper, app.BankKeeper)
+	smplcoinsModule := smplcoinsmodule.NewAppModule(appCodec, app.SmplCoinsKeeper, app.AccountKeeper, app.BankKeeper)
 
 	smplchainModule := smplchainmodule.NewAppModule(appCodec, app.SmplchainKeeper)
 
@@ -416,7 +417,7 @@ func New(
 		params.NewAppModule(app.ParamsKeeper),
 		transferModule,
 		smplchainModule,
-		smplusdModule,
+		smplcoinsModule,
 		// this line is used by starport scaffolding # stargate/app/appModule
 	)
 
@@ -452,7 +453,7 @@ func New(
 		evidencetypes.ModuleName,
 		ibctransfertypes.ModuleName,
 		smplchainmoduletypes.ModuleName,
-		smplusdmoduletypes.ModuleName,
+		smplcoinsmoduletypes.ModuleName,
 		// this line is used by starport scaffolding # stargate/app/initGenesis
 	)
 
@@ -641,7 +642,7 @@ func initParamsKeeper(appCodec codec.BinaryCodec, legacyAmino *codec.LegacyAmino
 	paramsKeeper.Subspace(ibctransfertypes.ModuleName)
 	paramsKeeper.Subspace(ibchost.ModuleName)
 	paramsKeeper.Subspace(smplchainmoduletypes.ModuleName)
-	paramsKeeper.Subspace(smplusdmoduletypes.ModuleName)
+	paramsKeeper.Subspace(smplcoinsmoduletypes.ModuleName)
 
 	// this line is used by starport scaffolding # stargate/app/paramSubspace
 
