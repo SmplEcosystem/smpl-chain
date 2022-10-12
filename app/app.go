@@ -98,7 +98,7 @@ import (
 	smplusdmoduletypes "github.com/Smpl-Finance/smpl-chain/x/simplusd/types"
 	// this line is used by starport scaffolding # stargate/app/moduleImport
 )
-jj
+
 const (
 	AccountAddressPrefix = "smpl"
 	Name                 = "smpl-chain"
