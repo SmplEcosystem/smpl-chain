@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"context"
+	"errors"
 
 	"github.com/Smpl-Finance/smpl-chain/x/smplcoins/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -15,13 +16,14 @@ func (k msgServer) Mintsusdse(goCtx context.Context, msg *types.MsgMintsusdse) (
 	if err != nil {
 		return nil, err
 	}
-
 	coin := sdk.NewCoins(sdk.Coin{Denom: "USDSE", Amount: sdk.Int(amount)})
 
 	user, err := sdk.AccAddressFromBech32(msg.Creator)
-	// if err != nil {
-	// 	return nil, err
-	// }
+
+	isBanker, err := k.rolesKeeper.HasRole(ctx, types.ModuleName, user, "bank")
+	if !isBanker {
+		return &types.MsgMintsusdseResponse{}, errors.New("bank role missing")
+	}
 
 	err = k.bankKeeper.MintCoins(ctx, types.ModuleName, coin)
 	if err != nil {

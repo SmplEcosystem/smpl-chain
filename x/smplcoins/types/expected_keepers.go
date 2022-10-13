@@ -21,3 +21,7 @@ type BankKeeper interface {
 	SendCoinsFromAccountToModule(ctx sdk.Context, senderAddr sdk.AccAddress, recipientModule string, amt sdk.Coins) error
 	// Methods imported from bank should be defined here
 }
+
+type RolesKeeper interface {
+	HasRole(ctx sdk.Context, senderModule string, account sdk.AccAddress, role string) (bool, error)
+}
