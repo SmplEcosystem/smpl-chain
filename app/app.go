@@ -96,6 +96,11 @@ import (
 	smplcoinsmodulekeeper "github.com/Smpl-Finance/smpl-chain/x/smplcoins/keeper"
 
 	smplcoinsmoduletypes "github.com/Smpl-Finance/smpl-chain/x/smplcoins/types"
+
+	rolesmodule "github.com/Smpl-Finance/smpl-chain/x/roles"
+	rolesmodulekeeper "github.com/Smpl-Finance/smpl-chain/x/roles/keeper"
+
+	rolesmoduletypes "github.com/Smpl-Finance/smpl-chain/x/roles/types"
 	// this line is used by starport scaffolding # stargate/app/moduleImport
 )
 
@@ -148,6 +153,7 @@ var (
 		vesting.AppModuleBasic{},
 		smplchainmodule.AppModuleBasic{},
 		smplcoinsmodule.AppModuleBasic{},
+		rolesmodule.AppModuleBasic{},
 
 		// this line is used by starport scaffolding # stargate/app/moduleBasic
 	)
@@ -226,6 +232,8 @@ type App struct {
 
 	SmplCoinsKeeper smplcoinsmodulekeeper.Keeper
 
+	RolesKeeper rolesmodulekeeper.Keeper
+
 	// this line is used by starport scaffolding # stargate/app/keeperDeclaration
 
 	// the module manager
@@ -261,6 +269,7 @@ func New(
 		evidencetypes.StoreKey, ibctransfertypes.StoreKey, capabilitytypes.StoreKey,
 		smplchainmoduletypes.StoreKey,
 		// this line is used by starport scaffolding # stargate/app/storeKey
+		rolesmoduletypes.StoreKey,
 	)
 	tkeys := sdk.NewTransientStoreKeys(paramstypes.TStoreKey)
 	memKeys := sdk.NewMemoryStoreKeys(capabilitytypes.MemStoreKey)
@@ -366,6 +375,12 @@ func New(
 		keys[smplchainmoduletypes.MemStoreKey],
 	)
 
+	app.RolesKeeper = *rolesmodulekeeper.NewKeeper(appCodec,
+		keys[rolesmoduletypes.StoreKey],
+		keys[rolesmoduletypes.MemStoreKey],
+		app.GetSubspace(rolesmoduletypes.ModuleName),
+	)
+
 	app.SmplCoinsKeeper = *smplcoinsmodulekeeper.NewKeeper(
 		appCodec,
 		keys[smplchainmoduletypes.StoreKey],
@@ -373,10 +388,14 @@ func New(
 		app.GetSubspace(smplchainmoduletypes.ModuleName),
 		app.BankKeeper,
 		app.AccountKeeper,
+		app.RolesKeeper,
 	)
-	smplcoinsModule := smplcoinsmodule.NewAppModule(appCodec, app.SmplCoinsKeeper, app.AccountKeeper, app.BankKeeper)
+
+	smplcoinsModule := smplcoinsmodule.NewAppModule(appCodec, app.SmplCoinsKeeper, app.AccountKeeper, app.BankKeeper, app.RolesKeeper)
 
 	smplchainModule := smplchainmodule.NewAppModule(appCodec, app.SmplchainKeeper)
+
+	rolesModule := rolesmodule.NewAppModule(appCodec, app.RolesKeeper, app.AccountKeeper, app.BankKeeper)
 
 	// this line is used by starport scaffolding # stargate/app/keeperDefinition
 
@@ -418,6 +437,7 @@ func New(
 		transferModule,
 		smplchainModule,
 		smplcoinsModule,
+		rolesModule,
 		// this line is used by starport scaffolding # stargate/app/appModule
 	)
 
@@ -453,6 +473,7 @@ func New(
 		evidencetypes.ModuleName,
 		ibctransfertypes.ModuleName,
 		smplchainmoduletypes.ModuleName,
+		rolesmoduletypes.ModuleName,
 		smplcoinsmoduletypes.ModuleName,
 		// this line is used by starport scaffolding # stargate/app/initGenesis
 	)
@@ -643,6 +664,7 @@ func initParamsKeeper(appCodec codec.BinaryCodec, legacyAmino *codec.LegacyAmino
 	paramsKeeper.Subspace(ibchost.ModuleName)
 	paramsKeeper.Subspace(smplchainmoduletypes.ModuleName)
 	paramsKeeper.Subspace(smplcoinsmoduletypes.ModuleName)
+	paramsKeeper.Subspace(rolesmoduletypes.ModuleName)
 
 	// this line is used by starport scaffolding # stargate/app/paramSubspace
 
