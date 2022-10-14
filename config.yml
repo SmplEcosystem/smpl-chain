@@ -39,3 +39,6 @@ init:
   client:
     keyring-backend: test
     chain-id: "cosmos:smpl-chain"
+  config:
+    rpc:
+      cors_allowed_origins: []
