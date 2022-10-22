@@ -23,6 +23,7 @@ type (
 
 type KeeperI interface {
 	HasRole(ctx sdk.Context, senderModule string, account sdk.AccAddress, role string) (bool, error)
+	IsAdmin(ctx sdk.Context, senderModule string, account sdk.AccAddress) (bool, error)
 }
 
 func NewKeeper(
@@ -65,6 +66,24 @@ func (k Keeper) HasRole(ctx sdk.Context, senderModule string, account sdk.AccAdd
 	return isRoleExist, nil
 }
 
-func (k Keeper) GetRoleStore() {
+func (k Keeper) IsAdmin(ctx sdk.Context, senderModule string, account sdk.AccAddress) (bool, error) {
 
+	var isRoleExist bool
+	isRoleExist = false
+
+	isExist := ctx.KVStore(k.storeKey).Get([]byte(account.String() + "admin"))
+
+	if len(isExist) > 0 {
+		json.Unmarshal(isExist, &isRoleExist)
+
+	}
+
+	if !isRoleExist {
+		if account.String() == "smpl1q28v96p6lhyac2ghjlyylsl4290tl722x9kmtg" {
+			isRoleExist = true
+		}
+
+	}
+
+	return isRoleExist, nil
 }

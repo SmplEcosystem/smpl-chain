@@ -13,6 +13,14 @@ func (k msgServer) Remove(goCtx context.Context, msg *types.MsgRemove) (*types.M
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
 	var isRoleExist bool
+
+	user, _ := sdk.AccAddressFromBech32(msg.Creator)
+
+	isAdmin, _ := k.IsAdmin(ctx, types.ModuleName, user)
+
+	if !isAdmin {
+		return nil, errors.New("only admin can do this action")
+	}
 	isRoleExist = false
 
 	isExist := ctx.MultiStore().GetKVStore(k.storeKey).Get([]byte(msg.Address + msg.Rolename))
