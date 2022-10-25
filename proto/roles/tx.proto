@@ -1,0 +1,33 @@
+syntax = "proto3";
+package smplfinance.smplchain.roles;
+
+// this line is used by starport scaffolding # proto/tx/import
+
+option go_package = "github.com/Smpl-Finance/smpl-chain/x/roles/types";
+
+// Msg defines the Msg service.
+service Msg {
+      rpc Add(MsgAdd) returns (MsgAddResponse);
+  rpc Remove(MsgRemove) returns (MsgRemoveResponse);
+// this line is used by starport scaffolding # proto/tx/rpc
+}
+
+message MsgAdd {
+  string creator = 1;
+  string rolename = 2;
+  string address = 3;
+}
+
+message MsgAddResponse {
+}
+
+message MsgRemove {
+  string creator = 1;
+  string rolename = 2;
+  string address = 3;
+}
+
+message MsgRemoveResponse {
+}
+
+// this line is used by starport scaffolding # proto/tx/message

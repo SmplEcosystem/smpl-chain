@@ -1,0 +1,31 @@
+syntax = "proto3";
+package smplfinance.smplchain.smplcoins;
+
+// this line is used by starport scaffolding # proto/tx/import
+
+option go_package = "github.com/Smpl-Finance/smpl-chain/x/smplcoins/types";
+
+// Msg defines the Msg service.
+service Msg {
+      rpc Mintsusdse(MsgMintsusdse) returns (MsgMintsusdseResponse);
+  rpc Burnsusdse(MsgBurnsusdse) returns (MsgBurnsusdseResponse);
+// this line is used by starport scaffolding # proto/tx/rpc
+}
+
+message MsgMintsusdse {
+  string creator = 1;
+  string amount = 2;
+}
+
+message MsgMintsusdseResponse {
+}
+
+message MsgBurnsusdse {
+  string creator = 1;
+  string amount = 2;
+}
+
+message MsgBurnsusdseResponse {
+}
+
+// this line is used by starport scaffolding # proto/tx/message

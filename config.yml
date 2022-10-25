@@ -1,41 +1,57 @@
+version: 1
+build:
+  proto:
+    path: proto
+    third_party_paths:
+    - third_party/proto
+    - proto_vendor
 accounts:
-  - name: validator1
-    coins: [ "200000000smpl" ]
-    mnemonic: "blossom nominee burst use banana base kite strong lawn autumn tree enact vapor domain media you marble bomb theory heart visit give cereal panic"
-  - name: alice
-    coins: [ "200000smpl" ]
-    mnemonic: "primary off palace rhythm attend human sample exact side domain fantasy attend tent end shadow gallery okay gallery clog announce cry senior citizen spot"
-  - name: bob
-    coins: ["10000smpl"]
-    mnemonic: "lion fade special man proof bus mansion turn consider earth castle comfort echo axis body pen vehicle glare pig chest member fantasy brush kiwi"
-validator:
-  name: validator1
-  staked: "10000000smpl"
+- name: validator1
+  coins:
+  - 200000000smpl
+  mnemonic: blossom nominee burst use banana base kite strong lawn autumn tree enact
+    vapor domain media you marble bomb theory heart visit give cereal panic
+- name: alice
+  coins:
+  - 200000smpl
+  mnemonic: primary off palace rhythm attend human sample exact side domain fantasy
+    attend tent end shadow gallery okay gallery clog announce cry senior citizen spot
+- name: bob
+  coins:
+  - 10000smpl
+  mnemonic: lion fade special man proof bus mansion turn consider earth castle comfort
+    echo axis body pen vehicle glare pig chest member fantasy brush kiwi
+faucet:
+  name: alice
+  coins:
+  - 1000smpl
+  coins_max:
+  - 20000smpl
+  host: 0.0.0.0:4500
 genesis:
-  chain_id: "cosmos:smpl-chain"
   app_state:
-    staking:
-      params:
-        bond_denom: "smpl"
     crisis:
       constant_fee:
         denom: smpl
     mint:
       params:
         mint_denom: smpl
-faucet:
-  name: alice
-  coins:
-    - 1000smpl
-  coins_max:
-    - 20000smpl
-init:
+    staking:
+      params:
+        bond_denom: smpl
+  chain_id: cosmos:smpl-chain
+validators:
+- name: validator1
+  bonded: 10000000smpl
   app:
-    minimum-gas-prices: "0smpl"
-    grpc-web:
-      enable-unsafe-cors: false
     api:
       enabled-unsafe-cors: false
+    grpc-web:
+      enable-unsafe-cors: false
+    minimum-gas-prices: 0smpl
+  config:
+    rpc:
+      cors_allowed_origins: []
   client:
+    chain-id: cosmos:smpl-chain
     keyring-backend: test
-    chain-id: "cosmos:smpl-chain"

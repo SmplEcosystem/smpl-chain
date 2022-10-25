@@ -53,6 +53,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/mint"
 	mintkeeper "github.com/cosmos/cosmos-sdk/x/mint/keeper"
 	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
+
 	"github.com/cosmos/cosmos-sdk/x/params"
 	paramsclient "github.com/cosmos/cosmos-sdk/x/params/client"
 	paramskeeper "github.com/cosmos/cosmos-sdk/x/params/keeper"
@@ -91,6 +92,15 @@ import (
 	smplchainmodule "github.com/Smpl-Finance/smpl-chain/x/smplchain"
 	smplchainmodulekeeper "github.com/Smpl-Finance/smpl-chain/x/smplchain/keeper"
 	smplchainmoduletypes "github.com/Smpl-Finance/smpl-chain/x/smplchain/types"
+	smplcoinsmodule "github.com/Smpl-Finance/smpl-chain/x/smplcoins"
+	smplcoinsmodulekeeper "github.com/Smpl-Finance/smpl-chain/x/smplcoins/keeper"
+
+	smplcoinsmoduletypes "github.com/Smpl-Finance/smpl-chain/x/smplcoins/types"
+
+	rolesmodule "github.com/Smpl-Finance/smpl-chain/x/roles"
+	rolesmodulekeeper "github.com/Smpl-Finance/smpl-chain/x/roles/keeper"
+
+	rolesmoduletypes "github.com/Smpl-Finance/smpl-chain/x/roles/types"
 	// this line is used by starport scaffolding # stargate/app/moduleImport
 )
 
@@ -142,14 +152,20 @@ var (
 		transfer.AppModuleBasic{},
 		vesting.AppModuleBasic{},
 		smplchainmodule.AppModuleBasic{},
+		smplcoinsmodule.AppModuleBasic{},
+		rolesmodule.AppModuleBasic{},
+
 		// this line is used by starport scaffolding # stargate/app/moduleBasic
 	)
 
 	// module account permissions
 	maccPerms = map[string][]string{
-		authtypes.FeeCollectorName:     nil,
-		distrtypes.ModuleName:          nil,
-		minttypes.ModuleName:           {authtypes.Minter},
+		authtypes.FeeCollectorName: nil,
+		distrtypes.ModuleName:      nil,
+		minttypes.ModuleName:       {authtypes.Minter},
+
+		smplcoinsmoduletypes.ModuleName: {authtypes.Minter, authtypes.Burner},
+
 		stakingtypes.BondedPoolName:    {authtypes.Burner, authtypes.Staking},
 		stakingtypes.NotBondedPoolName: {authtypes.Burner, authtypes.Staking},
 		govtypes.ModuleName:            {authtypes.Burner},
@@ -196,21 +212,28 @@ type App struct {
 	StakingKeeper    stakingkeeper.Keeper
 	SlashingKeeper   slashingkeeper.Keeper
 	MintKeeper       mintkeeper.Keeper
-	DistrKeeper      distrkeeper.Keeper
-	GovKeeper        govkeeper.Keeper
-	CrisisKeeper     crisiskeeper.Keeper
-	UpgradeKeeper    upgradekeeper.Keeper
-	ParamsKeeper     paramskeeper.Keeper
-	IBCKeeper        *ibckeeper.Keeper // IBC Keeper must be a pointer in the app, so we can SetRouter on it correctly
-	EvidenceKeeper   evidencekeeper.Keeper
-	TransferKeeper   ibctransferkeeper.Keeper
-	FeeGrantKeeper   feegrantkeeper.Keeper
+
+	DistrKeeper distrkeeper.Keeper
+
+	GovKeeper      govkeeper.Keeper
+	CrisisKeeper   crisiskeeper.Keeper
+	UpgradeKeeper  upgradekeeper.Keeper
+	ParamsKeeper   paramskeeper.Keeper
+	IBCKeeper      *ibckeeper.Keeper // IBC Keeper must be a pointer in the app, so we can SetRouter on it correctly
+	EvidenceKeeper evidencekeeper.Keeper
+	TransferKeeper ibctransferkeeper.Keeper
+	FeeGrantKeeper feegrantkeeper.Keeper
 
 	// make scoped keepers public for test purposes
 	ScopedIBCKeeper      capabilitykeeper.ScopedKeeper
 	ScopedTransferKeeper capabilitykeeper.ScopedKeeper
 
 	SmplchainKeeper smplchainmodulekeeper.Keeper
+
+	SmplCoinsKeeper smplcoinsmodulekeeper.Keeper
+
+	RolesKeeper rolesmodulekeeper.Keeper
+
 	// this line is used by starport scaffolding # stargate/app/keeperDeclaration
 
 	// the module manager
@@ -246,6 +269,7 @@ func New(
 		evidencetypes.StoreKey, ibctransfertypes.StoreKey, capabilitytypes.StoreKey,
 		smplchainmoduletypes.StoreKey,
 		// this line is used by starport scaffolding # stargate/app/storeKey
+		rolesmoduletypes.StoreKey,
 	)
 	tkeys := sdk.NewTransientStoreKeys(paramstypes.TStoreKey)
 	memKeys := sdk.NewMemoryStoreKeys(capabilitytypes.MemStoreKey)
@@ -279,8 +303,9 @@ func New(
 		appCodec, keys[authtypes.StoreKey], app.GetSubspace(authtypes.ModuleName), authtypes.ProtoBaseAccount, maccPerms,
 	)
 	app.BankKeeper = bankkeeper.NewBaseKeeper(
-		appCodec, keys[banktypes.StoreKey], app.AccountKeeper, app.GetSubspace(banktypes.ModuleName), app.ModuleAccountAddrs(),
+		appCodec, keys[banktypes.StoreKey], app.AccountKeeper, app.GetSubspace(banktypes.ModuleName), map[string]bool{},
 	)
+
 	stakingKeeper := stakingkeeper.NewKeeper(
 		appCodec, keys[stakingtypes.StoreKey], app.AccountKeeper, app.BankKeeper, app.GetSubspace(stakingtypes.ModuleName),
 	)
@@ -288,6 +313,7 @@ func New(
 		appCodec, keys[minttypes.StoreKey], app.GetSubspace(minttypes.ModuleName), &stakingKeeper,
 		app.AccountKeeper, app.BankKeeper, authtypes.FeeCollectorName,
 	)
+
 	app.DistrKeeper = distrkeeper.NewKeeper(
 		appCodec, keys[distrtypes.StoreKey], app.GetSubspace(distrtypes.ModuleName), app.AccountKeeper, app.BankKeeper,
 		&stakingKeeper, authtypes.FeeCollectorName, app.ModuleAccountAddrs(),
@@ -348,7 +374,28 @@ func New(
 		keys[smplchainmoduletypes.StoreKey],
 		keys[smplchainmoduletypes.MemStoreKey],
 	)
+
+	app.RolesKeeper = *rolesmodulekeeper.NewKeeper(appCodec,
+		keys[rolesmoduletypes.StoreKey],
+		keys[rolesmoduletypes.MemStoreKey],
+		app.GetSubspace(rolesmoduletypes.ModuleName),
+	)
+
+	app.SmplCoinsKeeper = *smplcoinsmodulekeeper.NewKeeper(
+		appCodec,
+		keys[smplchainmoduletypes.StoreKey],
+		keys[smplchainmoduletypes.MemStoreKey],
+		app.GetSubspace(smplchainmoduletypes.ModuleName),
+		app.BankKeeper,
+		app.AccountKeeper,
+		app.RolesKeeper,
+	)
+
+	smplcoinsModule := smplcoinsmodule.NewAppModule(appCodec, app.SmplCoinsKeeper, app.AccountKeeper, app.BankKeeper, app.RolesKeeper)
+
 	smplchainModule := smplchainmodule.NewAppModule(appCodec, app.SmplchainKeeper)
+
+	rolesModule := rolesmodule.NewAppModule(appCodec, app.RolesKeeper, app.AccountKeeper, app.BankKeeper)
 
 	// this line is used by starport scaffolding # stargate/app/keeperDefinition
 
@@ -389,6 +436,8 @@ func New(
 		params.NewAppModule(app.ParamsKeeper),
 		transferModule,
 		smplchainModule,
+		smplcoinsModule,
+		rolesModule,
 		// this line is used by starport scaffolding # stargate/app/appModule
 	)
 
@@ -424,6 +473,8 @@ func New(
 		evidencetypes.ModuleName,
 		ibctransfertypes.ModuleName,
 		smplchainmoduletypes.ModuleName,
+		rolesmoduletypes.ModuleName,
+		smplcoinsmoduletypes.ModuleName,
 		// this line is used by starport scaffolding # stargate/app/initGenesis
 	)
 
@@ -612,6 +663,9 @@ func initParamsKeeper(appCodec codec.BinaryCodec, legacyAmino *codec.LegacyAmino
 	paramsKeeper.Subspace(ibctransfertypes.ModuleName)
 	paramsKeeper.Subspace(ibchost.ModuleName)
 	paramsKeeper.Subspace(smplchainmoduletypes.ModuleName)
+	paramsKeeper.Subspace(smplcoinsmoduletypes.ModuleName)
+	paramsKeeper.Subspace(rolesmoduletypes.ModuleName)
+
 	// this line is used by starport scaffolding # stargate/app/paramSubspace
 
 	return paramsKeeper

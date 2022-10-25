@@ -1,0 +1,14 @@
+syntax = "proto3";
+package smplfinance.smplchain.roles;
+
+import "gogoproto/gogo.proto";
+import "roles/params.proto";
+// this line is used by starport scaffolding # genesis/proto/import
+
+option go_package = "github.com/Smpl-Finance/smpl-chain/x/roles/types";
+
+// GenesisState defines the roles module's genesis state.
+message GenesisState {
+  Params params = 1 [(gogoproto.nullable) = false];
+  // this line is used by starport scaffolding # genesis/proto/state
+}
