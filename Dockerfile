@@ -4,16 +4,14 @@ RUN apt-get update && \
     apt-get upgrade -y && \
     apt-get install -y build-essential ca-certificates curl
 
-RUN curl https://get.ignite.com/cli | bash
-
-RUN /go/ignite --help
+RUN curl https://get.ignite.com/cli! | bash
 
 WORKDIR /app
 
 COPY ./ ./
 
-RUN /go/ignite chain build -o /tmp/go/bin
-RUN /go/ignite chain init
+RUN ignite chain build -o /tmp/go/bin
+RUN ignite chain init
 
 FROM golang:1.18-bullseye
 
