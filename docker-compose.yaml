@@ -2,7 +2,7 @@ version: "3"
 services:
   SmplChain:
     build: .
-    image: registry.digitalocean.com/smplfinance-image-registry/smpl-chain:2.0.2
+    image: registry.digitalocean.com/smplfinance-image-registry/smpl-chain:2.1.0
 
   ReverseProxy:
     build:
