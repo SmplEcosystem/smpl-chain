@@ -16,7 +16,7 @@ func (k msgServer) Mintsusdse(goCtx context.Context, msg *types.MsgMintsusdse) (
 	if err != nil {
 		return nil, err
 	}
-	coin := sdk.NewCoins(sdk.Coin{Denom: "USDSE", Amount: sdk.Int(amount)})
+	coin := sdk.NewCoins(sdk.Coin{Denom: "usdse", Amount: sdk.Int(amount)})
 
 	user, err := sdk.AccAddressFromBech32(msg.Creator)
 

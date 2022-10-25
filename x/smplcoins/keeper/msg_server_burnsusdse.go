@@ -20,7 +20,7 @@ func (k msgServer) Burnsusdse(goCtx context.Context, msg *types.MsgBurnsusdse) (
 		return nil, err
 	}
 
-	coin := sdk.NewCoins(sdk.Coin{Denom: "USDSE", Amount: sdk.Int(amount)})
+	coin := sdk.NewCoins(sdk.Coin{Denom: "usdse", Amount: sdk.Int(amount)})
 
 	if k.bankKeeper.SpendableCoins(ctx, user).IsAllGTE(coin) {
 		k.bankKeeper.SendCoinsFromAccountToModule(ctx, user, types.ModuleName, coin)
